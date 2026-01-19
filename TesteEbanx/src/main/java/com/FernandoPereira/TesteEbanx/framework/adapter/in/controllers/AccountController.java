@@ -37,23 +37,6 @@ public class AccountController {
         return ResponseEntity.ok("OK");
     }
 
-    @Operation(
-            summary = "Consultar saldo",
-            description = "Retorna o saldo de uma conta existente"
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Saldo encontrado"),
-            @ApiResponse(responseCode = "404", description = "Conta não encontrada", content = @Content(schema = @Schema(implementation = Integer.class)))
-    })
-    @GetMapping("/balance")
-    public ResponseEntity<Object> getBalance(@RequestParam("account_id") String accountId) {
-        AccountDTO account = accountPortIn.getBalance(accountId);
-
-        if (account == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(0);
-        }
-        return ResponseEntity.ok(account.getBalance());
-    }
 
     @Operation(
             summary = "Processar evento",
@@ -93,4 +76,24 @@ public class AccountController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(0);
         }
     }
+
+    @Operation(
+            summary = "Consultar saldo",
+            description = "Retorna o saldo de uma conta existente"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Saldo encontrado"),
+            @ApiResponse(responseCode = "404", description = "Conta não encontrada", content = @Content(schema = @Schema(implementation = Integer.class)))
+    })
+    @GetMapping("/balance")
+    public ResponseEntity<Object> getBalance(@RequestParam("account_id") String accountId) {
+        AccountDTO account = accountPortIn.getBalance(accountId);
+
+        if (account == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(0);
+        }
+        return ResponseEntity.ok(account.getBalance());
+    }
+
+
 }
