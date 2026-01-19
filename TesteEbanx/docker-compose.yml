@@ -26,7 +26,7 @@ services:
       MYSQL_DATABASE: ebanx_db
       MYSQL_ROOT_PASSWORD: root
     ports:
-      - "3306:3306" # Libera a porta 3306 se quiser acessar via Workbench/DBeaver
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
 
