@@ -105,19 +105,20 @@ banco de dados principal (MySQL).
 
 ESTRUTURA DE PASTAS (ARQUITETURA HEXAGONAL)
 -----------------------------------------------------------------------------
-/src/main/java/com/FernandoPereira/TesteEbanx
-  |
-  +-- application
-  |     +-- port (Interfaces de Entrada e Saída)
-  |     +-- usecase (Regras de Negócio e Implementação das Portas de Entrada)
-  |
-  +-- domain (Objetos de Domínio / DTOs)
-  |
-  +-- framework
-        +-- adapter
-              +-- in (Controllers REST)
-              +-- out (Repositórios e Implementação das Portas de Saída)
+src/main/java/com/FernandoPereira/TesteEbanx
+│
+├── application
+│   ├── port
+│   │   ├── in   (Interfaces que o Controller chama)
+│   │   └── out  (Interfaces que o UseCase usa para salvar dados)
+│   │
+│   └── usecase  (A "alma" do sistema: Implementação das regras de negócio)
+│
+├── domain       (Onde ficam os DTOs e as Entidades, ex: Account)
+│
+└── framework
+    └── adapter
+        ├── in   (A "porta de entrada": Controllers REST)
+        └── out  (A "porta de saída": Implementação dos Repositórios com JPA/H2/MySQL)
 
-CONTATO
------------------------------------------------------------------------------
-Desenvolvedor: Fernando Pereira
+
