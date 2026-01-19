@@ -38,7 +38,7 @@ class AccountControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("OK"));
 
-        // Verifica se o método reset foi chamado no serviço
+
         verify(accountPortIn, times(1)).reset();
     }
 
@@ -51,18 +51,6 @@ class AccountControllerTest {
                         .param("account_id", "123"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("0"));
-    }
-
-    @Test
-    void shouldReturn200AndBalanceWhenAccountExists() throws Exception {
-        // Atenção: Certifique-se que AccountDTO tem @AllArgsConstructor
-        AccountDTO account = new AccountDTO("100", BigDecimal.valueOf(20));
-        when(accountPortIn.getBalance("100")).thenReturn(account);
-
-        mockMvc.perform(get("/balance")
-                        .param("account_id", "100"))
-                .andExpect(status().isOk())
-                .andExpect(content().json("20"));
     }
 
     // --- TESTE DE DEPÓSITO ---
@@ -83,6 +71,57 @@ class AccountControllerTest {
                 .andExpect(content().json("{\"id\":\"100\", \"balance\":10}"));
     }
 
+    @Test
+    void shouldReturn200AndBalanceWhenAccountExists() throws Exception {
+
+        AccountDTO account = new AccountDTO("100", BigDecimal.valueOf(20));
+        when(accountPortIn.getBalance("100")).thenReturn(account);
+
+        mockMvc.perform(get("/balance")
+                        .param("account_id", "100"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("20"));
+    }
+
+
+
+
+
+    // --- TESTE DE TRANSFERÊNCIA
+    @Test
+    void shouldTransferAndReturn201() throws Exception {
+        // Cenário: Transferir 50 da conta "100" para a "300"
+        EventRequestDTO request = new EventRequestDTO();
+        request.setType("transfer");
+        request.setOrigin("100");
+        request.setDestination("300");
+        request.setAmount(BigDecimal.valueOf(50));
+
+        //conta de origem (100) fica com saldo 0
+        AccountDTO originUpdated = new AccountDTO("100", BigDecimal.ZERO);
+        //  conta de destino (300) recebe 50 e fica com 50
+        AccountDTO destinationUpdated = new AccountDTO("300", BigDecimal.valueOf(50));
+
+
+        when(accountPortIn.transfer("100", "300", BigDecimal.valueOf(50)))
+                .thenReturn(originUpdated);
+
+
+        when(accountPortIn.getBalance("300")).thenReturn(destinationUpdated);
+
+
+        mockMvc.perform(post("/event")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(content().json("""
+                    {
+                        "origin": {"id":"100", "balance":0},
+                        "destination": {"id":"300", "balance":50}
+                    }
+                """));
+    }
+
     // --- TESTE DE SAQUE ---
     @Test
     void shouldReturn404WhenWithdrawFromNonExistentAccount() throws Exception {
@@ -99,40 +138,5 @@ class AccountControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("0"));
-    }
-
-    // --- TESTE DE TRANSFERÊNCIA (Novo) ---
-    @Test
-    void shouldTransferAndReturn201() throws Exception {
-        // Cenário: Transferir 50 da conta "100" para a "300"
-        EventRequestDTO request = new EventRequestDTO();
-        request.setType("transfer");
-        request.setOrigin("100");
-        request.setDestination("300");
-        request.setAmount(BigDecimal.valueOf(50));
-
-        // Mock: A conta de origem (100) fica com saldo 0
-        AccountDTO originUpdated = new AccountDTO("100", BigDecimal.ZERO);
-        // Mock: A conta de destino (300) recebe 50 e fica com 50
-        AccountDTO destinationUpdated = new AccountDTO("300", BigDecimal.valueOf(50));
-
-        // 1. Simula a execução da transferência (retorna a origem atualizada)
-        when(accountPortIn.transfer("100", "300", BigDecimal.valueOf(50)))
-                .thenReturn(originUpdated);
-
-        // 2. Simula a busca do destino atualizado (lembra que o Controller faz essa busca extra?)
-        when(accountPortIn.getBalance("300")).thenReturn(destinationUpdated);
-
-        // Verifica se o JSON de resposta tem o formato composto exigido
-        mockMvc.perform(post("/event")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(content().json("""
-                    {
-                        "origin": {"id":"100", "balance":0},
-                        "destination": {"id":"300", "balance":50}
-                    }
-                """));
     }
 }
