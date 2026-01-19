@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  # Serviço da sua Aplicação
+  app:
+    build: .
+    container_name: ebanx-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db # Espera o banco iniciar
+    environment:
+      # Configurações do Spring para conectar no container do banco
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/ebanx_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
+
+  # Serviço do Banco MySQL
+  db:
+    image: mysql:8.0
+    container_name: ebanx-mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: ebanx_db
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306" # Libera a porta 3306 se quiser acessar via Workbench/DBeaver
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
