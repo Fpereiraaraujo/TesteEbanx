@@ -34,13 +34,10 @@ Esta é a maneira recomendada, pois sobe a aplicação e o banco de dados juntos
 
 1. Abra o terminal na pasta raiz do projeto.
 
-2. Gere o arquivo executável (.jar):
-   Comando: mvn clean package -DskipTests
-
-3. Suba os containers da aplicação e do banco de dados:
+2. Suba os containers da aplicação e do banco de dados:
    Comando: docker-compose up --build
 
-4. Aguarde a mensagem de confirmação no terminal:
+3. Aguarde a mensagem de confirmação no terminal:
    "Started TesteEbanxApplication in ... seconds"
 
 ENDPOINTS E ACESSO
